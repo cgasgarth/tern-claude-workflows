@@ -11,12 +11,12 @@ do not show workflow progress yet.
   and start time.
 - **Phases with timelines.** Each phase is one line with its status, `done/total`, model, failures and a timeline bar
   that shows when it ran inside the workflow. Phases can run at the same time, and the bars make that visible.
-- **Agents the way Claude Code draws them.** The running or failed phase opens to a tree of agents with their model,
-  context tokens, tool calls, run time and `idle` time when a running agent has not written for 30 seconds or more.
+- **Agents the way Claude Code draws them.** The running or failed phase opens to a table of agents as a tree, with
+  columns for model, context tokens, tool calls, state and run time, and `idle` time when a running agent has not written for 30 seconds or more.
   The last tool call of a running agent shows under it. Done agents fold into one line; click a phase or press `v`
   to see them all.
-- **Shows past workflows.** Every workflow of the session is listed in its own scroll area at the bottom, with its
-  status, agents and run time. Click one to see it.
+- **Shows past workflows.** Every workflow of the session is listed in a table in its own scroll area at the bottom,
+  with its status, agents done, total tokens, tool calls, run time and start. Click one to see it.
 - **Opens transcripts.** Click an agent to open its transcript.
 
 ## Install

@@ -637,46 +637,47 @@ local function agent_took(state: State, a: Agent): number?
 	return nil
 end
 
--- The dim stats after an agent's label: "type · model · 175.4k tok · 82 tools · idle 45s".
-local function agent_stats(state: State, a: Agent): string
-	local parts: { string } = {}
-	if a.kind ~= nil then
-		table.insert(parts, a.kind)
-	end
-	local model = short_model(a.model)
-	if model ~= nil then
-		table.insert(parts, model)
-	end
-	if a.tokens ~= nil then
-		table.insert(parts, tokens(a.tokens) .. " tok")
-	end
-	if a.tools ~= nil and a.tools > 0 then
-		table.insert(parts, plural(a.tools, "tool"))
-	end
-	if a.state == "running" and a.last_at ~= nil then
-		local idle = wall(state) - a.last_at
-		if idle >= IDLE_S then
-			table.insert(parts, "idle " .. duration(idle * 1000))
-		end
-	end
-	if a.state == "stopped" or a.state == "skipped" or a.state == "queued" then
-		table.insert(parts, a.state)
-	end
-	if #parts == 0 and is_live(a) then
-		table.insert(parts, "…running")
-	end
-	return table.concat(parts, " · ")
+-- A table cell; numeric cells align right.
+local function cell(text: string, style: string?, num: boolean?): Node
+	return with(span_text(text, style, "cw.cell"), { mark = if num then "num" else nil })
 end
 
-local function agent_row(state: State, a: Agent, last: boolean): Node
+local function head_row(role: string, cols: { string }, nums: { [number]: boolean }): Node
+	local cells: { Node } = {}
+	for i, c in cols do
+		table.insert(cells, cell(c, "dim", nums[i]))
+	end
+	return with(ui.row(cells), { key = "th", role = role })
+end
+
+-- The state column of an agent: "idle 45s" when a running agent has not written for IDLE_S.
+local function agent_state(state: State, a: Agent): string
+	if a.state == "running" then
+		local idle = if a.last_at ~= nil then wall(state) - a.last_at else 0
+		return if idle >= IDLE_S then "idle " .. duration(idle * 1000) else "running"
+	end
+	return if a.state == "error" then "failed" elseif a.state == "done" then "" else a.state
+end
+
+local AGENT_COLS = { "", "", "Agent", "Model", "Tokens", "Tools", "State", "Time" }
+local AGENT_NUMS = { [5] = true, [6] = true, [8] = true }
+
+local function agent_row(state: State, a: Agent, last: boolean, typed: boolean): Node
 	local took = agent_took(state, a)
 	local line: { Node } = {
 		span_text(if last then "└─" else "├─", "dim", "cw.branch"),
 		icon(a.state),
-		span_text(a.label, "strong", "cw.label"),
-		span_text(agent_stats(state, a), "muted", "cw.stats"),
-		span_text(if took ~= nil then duration(took) else "", "dim", "cw.time"),
+		cell(a.label, "strong"),
 	}
+	if typed then
+		table.insert(line, cell(a.kind or "", "muted"))
+	end
+	local st = agent_state(state, a)
+	table.insert(line, cell(short_model(a.model) or "", "muted"))
+	table.insert(line, cell(if a.tokens ~= nil then tokens(a.tokens) else "", "muted", true))
+	table.insert(line, cell(if a.tools ~= nil and a.tools > 0 then tostring(a.tools) else "", "muted", true))
+	table.insert(line, with(cell(st, if a.state == "error" then "error" else "muted"), { role = "cw.state", mark = if string.sub(st, 1, 4) == "idle" then "idle" else nil }))
+	table.insert(line, cell(if took ~= nil then duration(took) else "", "dim", true))
 	local kids: { Node } = { with(ui.row(line), { role = "cw.line" }) }
 	if a.error ~= nil then
 		table.insert(kids, span_text(a.error, "error", "cw.sub"))
@@ -800,13 +801,27 @@ local function phase_node(state: State, f: Flow, n: number, title: string, agent
 				table.insert(shown, a)
 			end
 		end
+		local typed = false
+		for _, a in agents do
+			typed = typed or a.kind ~= nil
+		end
+		local cols, nums = AGENT_COLS, AGENT_NUMS
+		if typed then
+			cols = { "", "", "Agent", "Type", "Model", "Tokens", "Tools", "State", "Time" }
+			nums = { [6] = true, [7] = true, [9] = true }
+		end
+		local table_rows: { Node } = {}
+		if #shown > 0 then
+			table.insert(table_rows, head_row("cw.agenthead", cols, nums))
+		end
 		local folded = done - (if state.verbose or forced == true then done else 0)
 		if folded > 0 then
-			table.insert(rows, with(ui.row({ icon("done"), span_text(folded .. " done", "muted") }), { role = "cw.folded", key = "folded" }))
+			table.insert(table_rows, with(ui.row({ icon("done"), span_text(folded .. " done", "muted") }), { role = "cw.folded", key = "folded" }))
 		end
 		for i, a in shown do
-			table.insert(rows, agent_row(state, a, i == #shown))
+			table.insert(table_rows, agent_row(state, a, i == #shown, typed))
 		end
+		table.insert(rows, with(ui.col(table_rows), { key = "agents", role = "cw.agents", mark = if typed then "typed" else nil }))
 	end
 	return with(ui.col(rows), { key = "p_" .. n, role = "cw.phaseitem", mark = status })
 end
@@ -883,19 +898,23 @@ end
 
 local function flow_row(state: State, f: Flow): Node
 	local took = flow_took(state, f)
-	local done = 0
+	local done, tok, tools = 0, 0, 0
 	for _, a in f.agents do
 		if a.state == "done" then
 			done += 1
 		end
+		tok += a.tokens or 0
+		tools += a.tools or 0
 	end
 	return with(
 		ui.row({
 			icon(f.status),
-			span_text(f.name, "strong", "cw.label"),
-			span_text(done .. "/" .. #f.agents, "muted", "cw.stats"),
-			span_text(if f.start > 0 then ago(wall(state) - f.start) else "", "dim", "cw.ago"),
-			span_text(if took ~= nil then duration(took) else "", "dim", "cw.time"),
+			cell(f.name, "strong"),
+			cell(done .. "/" .. #f.agents, "muted", true),
+			cell(if tok > 0 then tokens(tok) else "", "muted", true),
+			cell(if tools > 0 then tostring(tools) else "", "muted", true),
+			cell(if took ~= nil then duration(took) else "", "muted", true),
+			cell(if f.start > 0 then ago(wall(state) - f.start) else "", "dim", true),
 		}),
 		{
 			key = "f_" .. f.id,
@@ -947,6 +966,7 @@ local function view(state: State): BlockView
 				span_text(tostring(#state.flows), "muted"),
 				span_text("↑↓ select · f follow · v agents · r refresh", "dim", "cw.keys"),
 			}), { key = "head", role = "cw.dockhead" }),
+			head_row("cw.flowhead", { "", "Workflow", "Agents", "Tokens", "Tools", "Time", "Started" }, { [3] = true, [4] = true, [5] = true, [6] = true, [7] = true }),
 			with(ui.col(rows), { key = "flows", role = "cw.flows" }),
 		})
 	end

@@ -168,7 +168,7 @@
 	padding-left: 2.4em;
 }
 
-/* Agent rows: tree branch, icon, label, stats, then the time at the right edge. */
+/* Agent rows: tree branch, icon, then the agent table cells. */
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'] {
 	gap: 0;
 	border-radius: 4px;
@@ -181,39 +181,15 @@
 	background: rgb(from var(--cw-accent) r g b / 8%);
 }
 
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.line'] {
-	flex-wrap: nowrap;
-	min-width: 0;
-}
-
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.branch'] {
 	font-family: var(--cw-mono);
 	flex: none;
-}
-
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.label'] {
-	flex: none;
-	max-width: 45%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.stats'] {
-	min-width: 0;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.time'] {
 	margin-left: auto;
 	flex: none;
 	font-variant-numeric: tabular-nums;
-}
-
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.ago'] {
-	flex: none;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.sub'] {
@@ -280,10 +256,77 @@
 	overscroll-behavior: contain;
 }
 
+/* Tables: the header row and the rows share one grid template, so the columns line up. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'],
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] {
-	flex-wrap: nowrap;
+	display: grid;
+	grid-template-columns: 1.4em minmax(8em, 1fr) 4.5em 5.5em 4.5em 7.5em 5.5em;
+	column-gap: 10px;
+	align-items: baseline;
 	border-radius: 4px;
 	padding: 2px 6px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.line'] {
+	display: grid;
+	grid-template-columns: 1.6em 1.4em minmax(6em, 1fr) 5.5em 5em 4em 6.5em 6.5em;
+	column-gap: 10px;
+	align-items: baseline;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.agenthead'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.line'] {
+	grid-template-columns: 1.6em 1.4em minmax(6em, 1fr) 8em 5.5em 5em 4em 6.5em 6.5em;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'] [data-role='cw.cell'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'] [data-role='cw.cell'] {
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'] {
+	padding-bottom: 2px;
+	border-bottom: 1px solid var(--cw-line);
+	margin-bottom: 2px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'] {
+	padding-left: 1.6em;
+	margin-top: 4px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.cell'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.state'] {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-variant-numeric: tabular-nums;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.cell'][data-mark='num'] {
+	justify-self: end;
+	text-align: right;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.state'] {
+	padding-left: 0.8em;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'] [data-role='cw.cell']:nth-last-child(2) {
+	padding-left: 0.8em;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.state'][data-mark='idle'] {
+	color: var(--cw-warn);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flows'] [data-role='cw.flow']:nth-child(even):not([data-mark='pick']) {
+	background: var(--cw-soft);
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'][data-mark='pick'] {
