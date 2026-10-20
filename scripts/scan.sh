@@ -109,7 +109,13 @@ for d in "$claude"/projects/*/"$best_sid"; do
 			printf 'agent\t%s\t%s\t%s\t%s\t%s\t%s\n' "$d" "$wf" "$id" "$(mtime "$m")" "$tm" "$tools"
 			[ -f "$t" ] && [ $((now - tm)) -lt 1800 ] || continue
 			# The last assistant entry carries the context size; the last tool call names what the agent does now.
-			recent=$(tail -c 400000 "$t" | grep '"type":"assistant"')
+			# Only lines that end in "}": Claude Code can be writing the last line while this reads it. A tool
+			# result with an image can be larger than the first window, so a larger one follows.
+			recent=""
+			for n in 400000 4000000 40000000; do
+				recent=$(tail -c "$n" "$t" | grep '"type":"assistant".*}$')
+				[ -n "$recent" ] && break
+			done
 			printf 'last\t%s\t%s\t%s\n' "$wf" "$id" "$(printf '%s\n' "$recent" | tail -n 1)"
 			printf 'use\t%s\t%s\t%s\n' "$wf" "$id" "$(printf '%s\n' "$recent" | grep '"type":"tool_use"' | tail -n 1)"
 		done

@@ -4,6 +4,8 @@ A [Tern](https://stencil.so/tern) plugin that shows the [Claude Code](https://cl
 session running in the current tab. It works for Claude Code's own terminal interface and for Tern's ACP chats, which
 do not show workflow progress yet.
 
+![The workflows block beside a Claude Code chat: the running workflow with its phases and agents, and the session's past workflows](docs/screenshot.png)
+
 - **Finds the session by itself.** Open it from the palette (⌘K → *View Claude workflows*, or `ctrl+alt+w`) in a tab
   where Claude Code runs. It reads the session that runs in the focused pane, else in another pane of the tab.
 - **Follows the newest workflow.** When a new workflow starts in that session, the block switches to it.
