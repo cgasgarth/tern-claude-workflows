@@ -22,6 +22,7 @@ claude=${CLAUDE_CONFIG_DIR:-$HOME/.claude}
 tab=$(printf '\t')
 
 mtime() { stat -f %m "$1" 2>/dev/null || stat -c %Y "$1" 2>/dev/null || echo 0; }
+size() { stat -f %z "$1" 2>/dev/null || stat -c %s "$1" 2>/dev/null || echo 0; }
 birth() {
 	b=$(stat -f %B "$1" 2>/dev/null || stat -c %W "$1" 2>/dev/null || echo 0)
 	[ "$b" -gt 0 ] 2>/dev/null && echo "$b" || mtime "$1"
@@ -36,6 +37,8 @@ pane_of() {
 }
 
 now=$(date +%s)
+cache=${TMPDIR:-/tmp}/claude-workflows
+mkdir -p "$cache"
 echo "now${tab}$now"
 
 # Claude processes that a session started (test harnesses, nested agents) inherit TERN_PANE too, so a
@@ -103,21 +106,34 @@ for d in "$claude"/projects/*/"$best_sid"; do
 			id=${m##*/agent-}
 			id=${id%.meta.json}
 			t="$w/agent-$id.jsonl"
-			tools=0
-			[ -f "$t" ] && tools=$(grep -o '"type":"tool_use"' "$t" | wc -l | tr -d ' ')
 			tm=$(mtime "$t")
-			printf 'agent\t%s\t%s\t%s\t%s\t%s\t%s\n' "$d" "$wf" "$id" "$(mtime "$m")" "$tm" "$tools"
-			[ -f "$t" ] && [ $((now - tm)) -lt 1800 ] || continue
-			# The last assistant entry carries the context size; the last tool call names what the agent does now.
-			# Only lines that end in "}": Claude Code can be writing the last line while this reads it. A tool
-			# result with an image can be larger than the first window, so a larger one follows.
-			recent=""
-			for n in 400000 4000000 40000000; do
-				recent=$(tail -c "$n" "$t" | grep '"type":"assistant".*}$')
-				[ -n "$recent" ] && break
-			done
-			printf 'last\t%s\t%s\t%s\n' "$wf" "$id" "$(printf '%s\n' "$recent" | tail -n 1)"
-			printf 'use\t%s\t%s\t%s\n' "$wf" "$id" "$(printf '%s\n' "$recent" | grep '"type":"tool_use"' | tail -n 1)"
+			if [ ! -f "$t" ]; then
+				printf 'agent\t%s\t%s\t%s\t%s\t%s\t0\n' "$d" "$wf" "$id" "$(mtime "$m")" "$tm"
+				continue
+			fi
+			# Transcripts reach tens of MB, so their digest (tool calls, last entry, last tool call) is kept in
+			# a cache file and read again only when the transcript changes.
+			c="$cache/$id"
+			key="$tm $(size "$t")"
+			if [ "$(head -n 1 "$c" 2>/dev/null)" != "$key" ]; then
+				# The last assistant entry carries the context size; the last tool call names what the agent does
+				# now. Only lines that end in "}": Claude Code can be writing the last line while this reads it.
+				# A tool result with an image can be larger than the first window, so a larger one follows.
+				recent=""
+				for n in 400000 4000000 40000000; do
+					recent=$(tail -c "$n" "$t" | grep '"type":"assistant".*}$')
+					[ -n "$recent" ] && break
+				done
+				{
+					printf '%s\n' "$key"
+					grep -o '"type":"tool_use"' "$t" | wc -l | tr -d ' '
+					printf '%s\n' "$recent" | tail -n 1
+					printf '%s\n' "$recent" | grep '"type":"tool_use"' | tail -n 1
+				} >"$c.$$" && mv "$c.$$" "$c"
+			fi
+			printf 'agent\t%s\t%s\t%s\t%s\t%s\t%s\n' "$d" "$wf" "$id" "$(mtime "$m")" "$tm" "$(sed -n 2p "$c")"
+			printf 'last\t%s\t%s\t%s\n' "$wf" "$id" "$(sed -n 3p "$c")"
+			printf 'use\t%s\t%s\t%s\n' "$wf" "$id" "$(sed -n 4p "$c")"
 		done
 	done
 done
