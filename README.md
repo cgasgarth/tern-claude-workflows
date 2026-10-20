@@ -30,15 +30,16 @@ runs on macOS and Linux.
 
 ## Open it beside a pane from a script or an agent
 
-The palette command acts on the focused pane. To open the block beside the pane a command runs in, whatever the
-window shows (for example from Claude Code after it starts a workflow):
+The palette command acts on the focused pane. A script or an agent can name the pane instead. The block opens
+beside that pane, in its tab and session, without moving focus or changing what the window shows:
 
 ```sh
-tern open --split right "claude-workflows-$TERN_PANE"
+tern open --split right "claude-workflows-$TERN_PANE"    # beside the pane this runs in
+tern open --split right "claude-workflows-<pane id>"     # beside another pane, for the session in its tab
 ```
 
-The plugin claims that path and opens the block for the session in `$TERN_PANE`. When that tab already has the
-block, it is focused instead.
+The plugin claims that path, opens the block and moves it beside the named pane. A tab gets at most one block:
+when it has one, nothing changes. The command exits 0 when the plugin handled it.
 
 ## Keys
 
