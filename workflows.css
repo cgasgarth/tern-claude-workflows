@@ -1,0 +1,125 @@
+/* Scoped to this plugin's block regions. Colors come from Tern's theme variables. */
+[data-surface^='plugin.claude-workflows.'] {
+	--cw-accent: var(--sf-accent, var(--accent));
+	--cw-line: rgb(128 128 128 / 28%);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'][data-act],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'].sf-act,
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.button'] {
+	cursor: pointer;
+}
+
+/* A phase: a bordered box, like Claude Code's single-line border. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.box'] {
+	border: 1px solid var(--cw-line);
+	border-radius: 6px;
+	padding: 6px 10px;
+	gap: 2px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.box'][data-mark='running'] {
+	border-color: rgb(from var(--cw-accent) r g b / 45%);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.folded'] {
+	padding-left: 4px;
+}
+
+/* Agent rows: tree branch, icon, label, stats, then the time at the right edge. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'] {
+	gap: 0;
+	border-radius: 4px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent']:hover,
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow']:hover {
+	background: rgb(from var(--cw-accent) r g b / 7%);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.line'] {
+	flex-wrap: nowrap;
+	min-width: 0;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.branch'] {
+	font-family: ui-monospace, 'JetBrains Mono', monospace;
+	flex: none;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.label'] {
+	flex: none;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'][data-mark='running'] [data-role='cw.label'] {
+	opacity: 0.75;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.stats'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.error'] {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.time'] {
+	margin-left: auto;
+	flex: none;
+	font-variant-numeric: tabular-nums;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.ago'] {
+	flex: none;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tool'] {
+	padding-left: 3.4em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-family: ui-monospace, 'JetBrains Mono', monospace;
+	font-size: 0.92em;
+}
+
+/* Status icons. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'] {
+	flex: none;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='running'] {
+	color: var(--cw-accent);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='done'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='completed'] {
+	color: var(--ok, #2f9e44);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='error'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='failed'] {
+	color: var(--bad, #e03131);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='stopped'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='killed'] {
+	color: var(--warn, #e8590c);
+}
+
+/* Workflow list. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] {
+	flex-wrap: nowrap;
+	border-radius: 4px;
+	padding: 1px 4px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'][data-mark='pick'] {
+	background: rgb(from var(--cw-accent) r g b / 14%);
+	box-shadow: inset 3px 0 0 var(--cw-accent);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.header'] {
+	gap: 2px;
+	margin-bottom: 4px;
+}

@@ -1,0 +1,15 @@
+schema = 1
+id = "claude-workflows"
+name = "Claude Workflows"
+version = "0.1.0"
+description = "Shows the Claude Code workflows of the session in this tab: live phases and agents, and past workflows."
+icon = "workflow"
+host = "host.luau"
+window = "window.luau"
+styles = ["workflows.css"]
+
+[[blocks]]
+id = "view"
+title = "Claude workflows"
+icon = "workflow"
+palette = false
