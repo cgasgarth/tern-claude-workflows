@@ -7,12 +7,16 @@ do not show workflow progress yet.
 - **Finds the session by itself.** Open it from the palette (⌘K → *View Claude workflows*, or `ctrl+alt+w`) in a tab
   where Claude Code runs. It reads the session that runs in the focused pane, else in another pane of the tab.
 - **Follows the newest workflow.** When a new workflow starts in that session, the block switches to it.
-- **Draws workflows the way Claude Code does.** Each phase is a box with `done/total`, the model and failures. Agents
-  show as a tree with their model, context tokens, tool calls, run time and `idle` time when a running agent has not
-  written for 30 seconds or more. The last tool call of a running agent shows under it. Done agents fold into one
-  line; `v` shows them all.
-- **Shows past workflows.** Every workflow of the session is listed with its status, agents and run time. Click one
-  to see it.
+- **A summary card** for the selected workflow: status, description, agents done, elapsed time, tokens, tool calls
+  and start time.
+- **Phases with timelines.** Each phase is one line with its status, `done/total`, model, failures and a timeline bar
+  that shows when it ran inside the workflow. Phases can run at the same time, and the bars make that visible.
+- **Agents the way Claude Code draws them.** The running or failed phase opens to a tree of agents with their model,
+  context tokens, tool calls, run time and `idle` time when a running agent has not written for 30 seconds or more.
+  The last tool call of a running agent shows under it. Done agents fold into one line; click a phase or press `v`
+  to see them all.
+- **Shows past workflows.** Every workflow of the session is listed in its own scroll area at the bottom, with its
+  status, agents and run time. Click one to see it.
 - **Opens transcripts.** Click an agent to open its transcript.
 
 ## Install
@@ -23,6 +27,18 @@ tern plugin install github.com/cgasgarth/tern-claude-workflows
 
 Requires Tern with plugin support, Claude Code with workflows, and a POSIX shell (`sh`, `ps`, `stat`, `grep`). It
 runs on macOS and Linux.
+
+## Open it beside a pane from a script or an agent
+
+The palette command acts on the focused pane. To open the block beside the pane a command runs in, whatever the
+window shows (for example from Claude Code after it starts a workflow):
+
+```sh
+tern open --split right "claude-workflows-$TERN_PANE"
+```
+
+The plugin claims that path and opens the block for the session in `$TERN_PANE`. When that tab already has the
+block, it is focused instead.
 
 ## Keys
 

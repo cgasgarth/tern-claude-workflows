@@ -1,41 +1,184 @@
 /* Scoped to this plugin's block regions. Colors come from Tern's theme variables. */
 [data-surface^='plugin.claude-workflows.'] {
 	--cw-accent: var(--sf-accent, var(--accent));
-	--cw-line: rgb(128 128 128 / 28%);
+	--cw-line: rgb(128 128 128 / 24%);
+	--cw-soft: rgb(128 128 128 / 7%);
+	--cw-ok: var(--ok, #2f9e44);
+	--cw-bad: var(--bad, #e03131);
+	--cw-warn: var(--warn, #e8590c);
+	--cw-mono: ui-monospace, 'JetBrains Mono', monospace;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'],
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'][data-act],
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'].sf-act,
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'].sf-act,
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.button'] {
 	cursor: pointer;
 }
 
-/* A phase: a bordered box, like Claude Code's single-line border. */
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.box'] {
-	border: 1px solid var(--cw-line);
-	border-radius: 6px;
-	padding: 6px 10px;
-	gap: 2px;
+/* Header bar: brand and session on the left, toggles on the right. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.bar'] {
+	flex-wrap: nowrap;
+	align-items: center;
+	padding-bottom: 6px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid var(--cw-line);
 }
 
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.box'][data-mark='running'] {
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.session'] {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.spacer'] {
+	flex: 1;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.button'] {
+	flex: none;
+}
+
+/* Summary card of the selected workflow. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.card'] {
+	gap: 6px;
+	padding: 10px 12px;
+	border: 1px solid var(--cw-line);
+	border-radius: 8px;
+	background: var(--cw-soft);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.card'][data-mark='running'] {
 	border-color: rgb(from var(--cw-accent) r g b / 45%);
 }
 
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.titlerow'] {
+	flex-wrap: nowrap;
+	align-items: center;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowname'] {
+	font-size: 1.15em;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.status'] {
+	margin-left: auto;
+	flex: none;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.caption'] {
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-size: 0.82em;
+	margin-top: 8px;
+}
+
+/* Phases: one numbered list. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phases'] {
+	gap: 0;
+	border: 1px solid var(--cw-line);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phaseitem'] {
+	gap: 0;
+	padding: 5px 10px;
+	border-top: 1px solid var(--cw-line);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phaseitem']:first-child {
+	border-top: none;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phaseitem'][data-mark='running'] {
+	background: rgb(from var(--cw-accent) r g b / 6%);
+	box-shadow: inset 3px 0 0 var(--cw-accent);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phaseitem'][data-mark='error'] {
+	box-shadow: inset 3px 0 0 var(--cw-bad);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phaseitem'][data-mark='queued'] {
+	opacity: 0.55;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'] {
+	flex-wrap: nowrap;
+	align-items: center;
+	min-height: 1.7em;
+}
+
+/* A phase line: stats take the free width so the timeline and the time line up on every row. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'] [data-role='cw.stats'] {
+	flex: 1;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'] [data-role='cw.time'] {
+	margin-left: 0;
+	min-width: 7.5em;
+	text-align: right;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.timeline'] {
+	flex: none;
+	gap: 0;
+	flex-wrap: nowrap;
+	font-family: var(--cw-mono);
+	letter-spacing: -0.02em;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_off'] {
+	opacity: 0.25;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_on'] {
+	color: var(--cw-ok);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_on'][data-mark='running'] {
+	color: var(--cw-accent);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_on'][data-mark='error'] {
+	color: var(--cw-bad);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_on'][data-mark='stopped'] {
+	color: var(--cw-warn);
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phase'] {
+	flex: none;
+	min-width: 7em;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.word'] {
+	flex: none;
+	min-width: 5em;
+}
+
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.folded'] {
-	padding-left: 4px;
+	padding-left: 2.4em;
 }
 
 /* Agent rows: tree branch, icon, label, stats, then the time at the right edge. */
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'] {
 	gap: 0;
 	border-radius: 4px;
+	padding-left: 1.6em;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.agent']:hover,
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'].sf-act:hover,
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow']:hover {
-	background: rgb(from var(--cw-accent) r g b / 7%);
+	background: rgb(from var(--cw-accent) r g b / 8%);
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.line'] {
@@ -44,20 +187,19 @@
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.branch'] {
-	font-family: ui-monospace, 'JetBrains Mono', monospace;
+	font-family: var(--cw-mono);
 	flex: none;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.label'] {
 	flex: none;
+	max-width: 45%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'][data-mark='running'] [data-role='cw.label'] {
-	opacity: 0.75;
-}
-
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.stats'],
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.error'] {
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.stats'] {
 	min-width: 0;
 	white-space: nowrap;
 	overflow: hidden;
@@ -74,13 +216,13 @@
 	flex: none;
 }
 
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.tool'] {
-	padding-left: 3.4em;
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.sub'] {
+	padding-left: 3.6em;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font-family: ui-monospace, 'JetBrains Mono', monospace;
-	font-size: 0.92em;
+	font-family: var(--cw-mono);
+	font-size: 0.9em;
 }
 
 /* Status icons. */
@@ -94,32 +236,57 @@
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='done'],
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='completed'] {
-	color: var(--ok, #2f9e44);
+	color: var(--cw-ok);
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='error'],
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='failed'] {
-	color: var(--bad, #e03131);
+	color: var(--cw-bad);
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='stopped'],
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.icon'][data-mark='killed'] {
-	color: var(--warn, #e8590c);
+	color: var(--cw-warn);
 }
 
-/* Workflow list. */
+/* Dock: the session's workflow list in its own scroll area. */
+.sf-dock[data-surface^='plugin.claude-workflows.'] {
+	border-top: 1px solid var(--cw-line);
+	padding-top: 6px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.dockhead'] {
+	flex-wrap: nowrap;
+	align-items: baseline;
+	padding-bottom: 4px;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.dockhead'] [data-role='cw.caption'] {
+	margin-top: 0;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.keys'] {
+	margin-left: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.flows'] {
+	gap: 0;
+	max-height: 32vh;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] {
 	flex-wrap: nowrap;
 	border-radius: 4px;
-	padding: 1px 4px;
+	padding: 2px 6px;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'][data-mark='pick'] {
 	background: rgb(from var(--cw-accent) r g b / 14%);
 	box-shadow: inset 3px 0 0 var(--cw-accent);
-}
-
-[data-surface^='plugin.claude-workflows.'] [data-role='cw.header'] {
-	gap: 2px;
-	margin-bottom: 4px;
 }
