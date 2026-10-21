@@ -9,6 +9,12 @@
 	--cw-mono: ui-monospace, 'JetBrains Mono', monospace;
 }
 
+/* Narrow rules below query the region width, not the window width. */
+.sf-main[data-surface^='plugin.claude-workflows.'],
+.sf-dock[data-surface^='plugin.claude-workflows.'] {
+	container: cw / inline-size;
+}
+
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'],
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'].sf-act,
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'].sf-act,
@@ -115,9 +121,14 @@
 	min-height: 1.7em;
 }
 
-/* A phase line: stats take the free width so the timeline and the time line up on every row. */
+/* A phase line: stats take the free width so the timeline and the time line up on every row. When the line is
+   too narrow, the timeline shrinks first and the stats keep a minimum width with an ellipsis. */
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'] [data-role='cw.stats'] {
-	flex: 1;
+	flex: 1 1 0;
+	min-width: 4em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'] [data-role='cw.time'] {
@@ -127,11 +138,27 @@
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.timeline'] {
-	flex: none;
+	flex: 0 1 auto;
+	min-width: 3em;
+	overflow: hidden;
 	gap: 0;
 	flex-wrap: nowrap;
 	font-family: var(--cw-mono);
 	letter-spacing: -0.02em;
+}
+
+/* Each segment shrinks by its own width, so a narrow timeline keeps its proportions. */
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_off'],
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_on'] {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: clip;
+}
+
+[data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_on'] {
+	min-width: 2px;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.tl_off'] {
@@ -155,8 +182,11 @@
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.phase'] {
-	flex: none;
-	min-width: 7em;
+	flex: 0 0.3 7em;
+	min-width: 4em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.word'] {
@@ -239,6 +269,9 @@
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.dockhead'] [data-role='cw.caption'] {
 	margin-top: 0;
+	flex: none;
+	white-space: nowrap;
+	margin-right: 0.6em;
 }
 
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.keys'] {
@@ -332,4 +365,92 @@
 [data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'][data-mark='pick'] {
 	background: rgb(from var(--cw-accent) r g b / 14%);
 	box-shadow: inset 3px 0 0 var(--cw-accent);
+}
+
+/* Medium width: drop the start column, tighten the other columns. */
+@container cw (max-width: 640px) {
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] {
+		grid-template-columns: 1.4em minmax(6em, 1fr) 3.5em 4.5em 3.5em 6.5em;
+		column-gap: 8px;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'] > :nth-child(7),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] > :nth-child(7) {
+		display: none;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.word'] {
+		min-width: 4.5em;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.phasehead'] [data-role='cw.time'] {
+		min-width: 6.5em;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.line'] {
+		grid-template-columns: 1.6em 1.4em minmax(5em, 1fr) 5.5em 4.5em 3.5em 5.5em 6em;
+		column-gap: 8px;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.agenthead'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.line'] {
+		grid-template-columns: 1.6em 1.4em minmax(5em, 1fr) 6em 5.5em 4.5em 3.5em 5.5em 6em;
+	}
+}
+
+/* Narrow width: the phase line keeps its icon, name, counts, timeline and time; tables keep the key columns. */
+@container cw (max-width: 480px) {
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.word'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.keys'] {
+		display: none;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.phaseitem'] {
+		padding: 5px 8px;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] {
+		grid-template-columns: 1.4em minmax(5em, 1fr) 3.5em 4.5em 6.5em;
+		column-gap: 6px;
+		padding: 2px 4px;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flowhead'] > :nth-child(5),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.flow'] > :nth-child(5) {
+		display: none;
+	}
+
+	/* Agents: no tree branch, type or model; the phase line already names the model when all agents share it. */
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agent'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'] {
+		padding-left: 0.4em;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.folded'] {
+		padding-left: 0.4em;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.sub'] {
+		padding-left: 2em;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'] > :nth-child(1),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.line'] > :nth-child(1),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents']:not([data-mark='typed']) [data-role='cw.agenthead'] > :nth-child(4),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents']:not([data-mark='typed']) [data-role='cw.line'] > :nth-child(4),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.agenthead'] > :nth-child(-n + 5):nth-child(n + 4),
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.line'] > :nth-child(-n + 5):nth-child(n + 4) {
+		display: none;
+	}
+
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agenthead'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.line'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.agenthead'],
+	[data-surface^='plugin.claude-workflows.'] [data-role='cw.agents'][data-mark='typed'] [data-role='cw.line'] {
+		grid-template-columns: 1.4em minmax(4em, 1fr) 4.5em 3.5em 5em 6em;
+		column-gap: 6px;
+	}
 }
